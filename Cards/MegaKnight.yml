@@ -1,0 +1,34 @@
+Card:
+  Name: 'MegaKnight'
+  Health: '1000'
+  Mob: 'Iron Golem'
+  Armor:
+    Helmet: 'NONE'
+    Chestplate: 'NONE'
+    Leggings: 'NONE'
+    Boots: 'NONE'
+  HeldItem: 'NONE'
+  Attack:
+    throw:
+      enabled: 'false'
+      item: 'Fireball'
+    Speed: '0.88'
+    Damage: '50'
+    Towers: 'true'
+    Cards: 'true'
+  MotionSpeed: '0.99'
+  Levels:
+    Start: '3'
+    Max: '14'
+    Upgrades:
+      Damage: '+50'
+      Speed: '+0.01'
+  Release:
+    DamageRadius:
+      Enabled: 'true'
+      Animation: 'true'
+      Radius: '5'
+      Damage: '500'
+    TimeToRelease: '2'
+    ReleaseLocation: 'BeforeBridge'
+    Throw: 'false'
