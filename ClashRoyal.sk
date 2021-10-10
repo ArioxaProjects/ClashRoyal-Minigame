@@ -1,0 +1,73 @@
+on join:
+	if {CR::PlayerData::%player%::Arena} is not set:
+		set {CR::PlayerData::%player%::Arena} to "Trainee"
+	if {CR::PlayerData::%player%::Cards::*} is not set:
+		stop
+
+function CRload():
+
+	# Cards #
+	CRDownloadCard("https://pastebin.com/dl/aT8eNjhb", "Mega MegaKnight")
+
+function CRDownloadCard(link: text, Name: text):
+	if file "plugins/ClashRoyal/Cards/%{_Name}%.yml" doesn't exist:
+		skutil download file from "%{_link}%" to file "plugins/ClashRoyal/Cards/%{_Name}%.yml"
+		stop
+
+load:
+	CRload()	
+
+function CRYamlWrite(type: text, node: text, value: text, name: text = ""):
+	if {_type} is "config":
+		if yaml value "%{_node}%" from file "plugins/ClashRoyal/config.yml" doesn't exist:
+			set yaml value "%{_node}%" from file "plugins/ClashRoyal/config.yml" to "%{_value}%"
+	if {_type} is "card":
+		if yaml value "%{_node}%" from file "plugins/ClashRoyal/Cards/%{_name}%.yml" doesn't exist:
+			set yaml value "%{_node}%" from file "plugins/ClashRoyal/Cards/%{_name}%.yml" to "%{_value}%"
+
+function CRjoin(game: text, p: text):
+	if {CR::PlayerData::%{_p}%::inGame} is not set:
+		if {CR::ServerData::Arenas::%{_game}%} is set:
+			if {CR::ServerData::Arenas::playersIn::%{_game}%} < {CR::ServerData::Arenas::MaxPlayers::%{_game}%}:
+				set {CR::PlayerData::%{_p}%::inGame} to {_game}
+				set {_player} to {_p} parsed as player
+				set {CR::PlayerData::%{_p}%::Inventory} to {_player}'s serialized inventory
+				clear {_player}'s inventory
+				set {CR::PlayerData::%{_p}%::Gamemode} to {_player}'s gamemode
+				set {_player}'s gamemode to adventure
+				add {_p} to {CR::ServerData::Arenas::Players::%{_game}%::*}
+				teleport {_player} to {CR::ServerData::Arenas::WaitingSpawn::%{_game}%}
+				if {CR::ServerData::Arenas::playersIn::%{_game}%} >= {CR::ServerData::Arenas::MinPlayers::%{_game}%}:
+					CRstart({_game})
+
+function CRstart(game: text):
+	set {_i} to 10
+	loop 10 times:
+		if {CR::ServerData::Arenas::playersIn::%{_game}%} >= {CR::ServerData::Arenas::MinPlayers::%{_game}%}:
+			remove 1 from {_i}
+			if {_i} is 0:
+				set {CR::ServerData::Arenas::DontPlace::%{_game}%} to true
+				set {_int} to 0
+				loop {CR::ServerData::Arenas::Players::%{_game}%::*}:
+					add 1 to {_int}
+					teleport loop-value-2 parsed as player to {CR::ServerData::Arenas::Spawns::%{_game}%::King::%{_int}%}
+				
+
+function CRgameBroadcast(game: text, t: text):
+	loop {CR::ServerData::Arenas::Players::%{_game}%::*}:
+		send "%{_t}%" to loop-value parsed as player
+
+command /test [<text>]:
+	trigger:
+
+
+# command /test:
+# 	trigger:
+# 		set {_Tower} to player's location
+# 		wait 5 seconds
+# 		spawn pig at player's location
+# 		apply slowness 500 to spawned entity for 999999999 seconds
+# 		wait 0.88 seconds
+# 		make spawned entity pathfind to {_Tower} with speed 5
+# 		remove slowness from spawned entity
+		
